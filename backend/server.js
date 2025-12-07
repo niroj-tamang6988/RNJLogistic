@@ -43,13 +43,20 @@ const upload = multer({
 });
 
 // Database connection
-const db = mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME || 'dms',
-    port: process.env.DB_PORT || 3306
-});
+let db;
+if (process.env.DATABASE_URL) {
+    // Use DATABASE_URL for production (Railway/PlanetScale)
+    db = mysql.createConnection(process.env.DATABASE_URL);
+} else {
+    // Use individual variables for local development
+    db = mysql.createConnection({
+        host: process.env.DB_HOST || 'localhost',
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME || 'dms',
+        port: process.env.DB_PORT || 3306
+    });
+}
 
 // Auth middleware
 const auth = (req, res, next) => {
